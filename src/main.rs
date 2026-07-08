@@ -2,10 +2,10 @@ use macroquad::prelude::*;
 use std::time::{Duration, Instant};
 
 const FPS: f32 = 60.0;
-const JUMP_FORCE: f32 = 10.0;
-const GRAVITY: f32 = 1.0;
+const JUMP_FORCE: f32 = 20.0;
+const GRAVITY: f32 = 2.0;
 const X_POS: f32 = 30.0;
-const BIRD_SIZE: f32 = 10.0;
+const BIRD_SIZE: f32 = 20.0;
 
 struct Bird {
     // score: u128,
@@ -16,13 +16,19 @@ impl Bird {
     fn jump(&mut self) {
         self.speed_y = JUMP_FORCE;
     }
-
+    
     fn gravity(&mut self) {
         self.speed_y -= GRAVITY;
     }
-
+    
     fn move_y(&mut self) {
         self.y += self.speed_y;
+        if self.y >= 300.0 {
+            panic!("Died, fly too high");
+        }
+        if self.y <= -300.0 {
+            panic!("Died, fly too low");
+        }
     }
 }
 
@@ -78,7 +84,7 @@ fn game_logic(bird: &mut Bird, space: &mut bool) {
     }
     bird.gravity();
     bird.move_y();
-    println!("{}, {}", bird.y, space);
+    println!("{}, {}", bird.y, bird.speed_y);
 }
 
 fn render(bird: &Bird) {
