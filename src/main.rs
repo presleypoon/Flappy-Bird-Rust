@@ -2,19 +2,19 @@ use macroquad::prelude::*;
 use std::time::{Duration, Instant};
 
 const FPS: f32 = 60.0;
-const JUMP_FORCE: u16 = 10;
-const GRAVITY: u16 = 2;
-const X_POS: u16 = 30;
-const BIRD_SIZE: u8 = 10;
+const JUMP_FORCE: f32 = 10.0;
+const GRAVITY: f32 = 1.0;
+const X_POS: f32 = 30.0;
+const BIRD_SIZE: f32 = 10.0;
 
 struct Bird {
     // score: u128,
-    y: u16,
-    speed_y: u16,
+    y: f32,
+    speed_y: f32,
 }
 impl Bird {
     fn jump(&mut self) {
-        self.speed_y += JUMP_FORCE;
+        self.speed_y = JUMP_FORCE;
     }
 
     fn gravity(&mut self) {
@@ -44,17 +44,26 @@ async fn main() {
 
     let mut bird: Bird = Bird {
         // score: 0,
-        y: 300,
-        speed_y: 0,
+        y: 0.0,
+        speed_y: 0.0,
     };
 
     loop {
+        if is_key_down(KeyCode::Escape) {
+            break;
+        }
+
         let elapsed = last_tick.elapsed();
         last_tick = Instant::now();
         accumlator += elapsed;
 
+        let mut space: bool = false;
+        if is_key_down(KeyCode::Space) {
+            space = true;
+        }
+
         while accumlator >= tick_rate {
-            game_logic(&mut bird);
+            game_logic(&mut bird, &mut space);
             accumlator -= tick_rate;
         }
         render(&bird);
@@ -62,14 +71,17 @@ async fn main() {
     }
 }
 
-fn game_logic(bird: &mut Bird) {
-    if is_key_pressed(KeyCode::Space) {
+fn game_logic(bird: &mut Bird, space: &mut bool) {
+    if *space {
         bird.jump();
+        *space = false;
     }
     bird.gravity();
     bird.move_y();
+    println!("{}, {}", bird.y, space);
 }
 
 fn render(bird: &Bird) {
-    draw_rectangle(X_POS as f32, bird.y as f32, BIRD_SIZE as f32, BIRD_SIZE as f32, ORANGE);    
+    clear_background(SKYBLUE);
+    draw_rectangle(X_POS, 300.0 - bird.y, BIRD_SIZE, BIRD_SIZE, ORANGE);
 }
