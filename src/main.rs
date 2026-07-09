@@ -16,19 +16,20 @@ impl Bird {
     fn jump(&mut self) {
         self.speed_y = JUMP_FORCE;
     }
-    
+
     fn gravity(&mut self) {
         self.speed_y -= GRAVITY;
     }
-    
-    fn move_y(&mut self) {
+
+    fn move_y(&mut self) -> bool {
         self.y += self.speed_y;
         if self.y >= 300.0 {
-            panic!("Died, fly too high");
-        }
-        if self.y <= -300.0 {
-            panic!("Died, fly too low");
-        }
+            println!("Died, fly too high");
+            true
+        } else if  self.y <= -300.0 {
+            println!("Died, fly too low");
+            true
+        } else {false}
     }
 }
 
@@ -47,6 +48,7 @@ async fn main() {
     let tick_rate: Duration = Duration::from_secs_f32(1.0 / FPS);
     let mut last_tick: Instant = Instant::now();
     let mut accumlator: Duration = Duration::ZERO;
+    let mut running: bool = false;
 
     let mut bird: Bird = Bird {
         // score: 0,
@@ -68,23 +70,31 @@ async fn main() {
             space = true;
         }
 
-        while accumlator >= tick_rate {
-            game_logic(&mut bird, &mut space);
-            accumlator -= tick_rate;
+        if is_any_key_down() {
+            running = true;
+        }
+
+        if running {
+            while accumlator >= tick_rate {
+                if game_logic(&mut bird, &mut space) {return}
+                accumlator -= tick_rate;
+            }
+        } else {
+            accumlator = Duration::ZERO;
         }
         render(&bird);
         next_frame().await;
     }
 }
 
-fn game_logic(bird: &mut Bird, space: &mut bool) {
+fn game_logic(bird: &mut Bird, space: &mut bool) -> bool {
     if *space {
         bird.jump();
         *space = false;
     }
     bird.gravity();
-    bird.move_y();
     println!("{}, {}", bird.y, bird.speed_y);
+    bird.move_y()
 }
 
 fn render(bird: &Bird) {
