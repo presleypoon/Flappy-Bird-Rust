@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use macroquad_text::Fonts;
 use std::time::{Duration, Instant};
 
 const FPS: f32 = 60.0;
@@ -8,7 +9,7 @@ const X_POS: f32 = 30.0;
 const BIRD_SIZE: f32 = 20.0;
 
 struct Bird {
-    // score: u128,
+    score: u128,
     y: f32,
     speed_y: f32,
 }
@@ -26,10 +27,12 @@ impl Bird {
         if self.y >= 300.0 {
             println!("Died, fly too high");
             true
-        } else if  self.y <= -300.0 {
+        } else if self.y <= -300.0 {
             println!("Died, fly too low");
             true
-        } else {false}
+        } else {
+            false
+        }
     }
 }
 
@@ -51,7 +54,7 @@ async fn main() {
     let mut running: bool = false;
 
     let mut bird: Bird = Bird {
-        // score: 0,
+        score: 0,
         y: 0.0,
         speed_y: 0.0,
     };
@@ -76,7 +79,9 @@ async fn main() {
 
         if running {
             while accumlator >= tick_rate {
-                if game_logic(&mut bird, &mut space) {return}
+                if game_logic(&mut bird, &mut space) {
+                    return;
+                }
                 accumlator -= tick_rate;
             }
         } else {
@@ -97,7 +102,12 @@ fn game_logic(bird: &mut Bird, space: &mut bool) -> bool {
     bird.move_y()
 }
 
+const NOTO_SANS: &[u8] = include_bytes!("../assets/fonts/NotoSans-Regular.ttf");
 fn render(bird: &Bird) {
     clear_background(SKYBLUE);
     draw_rectangle(X_POS, 300.0 - bird.y, BIRD_SIZE, BIRD_SIZE, ORANGE);
+
+    let mut fonts = Fonts::default();
+    fonts.load_font_from_bytes("Noto Sans", NOTO_SANS).unwrap();
+    fonts.draw_text(&bird.score.to_string(), 10.0, 0.0, 12, BLACK);
 }
