@@ -109,7 +109,6 @@ fn game_logic(bird: &mut Bird, space: &mut bool) -> bool {
     bird.move_y()
 }
 
-
 fn render(bird: &Bird, fonts: &mut Fonts<'_>) {
     clear_background(SKYBLUE);
     draw_rectangle(X_POS, 300.0 - bird.y, BIRD_SIZE, BIRD_SIZE, ORANGE);
