@@ -46,6 +46,8 @@ fn window() -> Conf {
     }
 }
 
+const NOTO_SANS: &[u8] = include_bytes!("../assets/fonts/NotoSans-Regular.ttf");
+
 #[macroquad::main(window)]
 async fn main() {
     let tick_rate: Duration = Duration::from_secs_f32(1.0 / FPS);
@@ -58,6 +60,11 @@ async fn main() {
         y: 0.0,
         speed_y: 0.0,
     };
+
+    let mut fonts: Fonts<'_> = Fonts::default();
+    fonts.load_font_from_bytes("Noto Sans", NOTO_SANS).unwrap();
+
+    println!("Init done");
 
     loop {
         if is_key_down(KeyCode::Escape) {
@@ -87,7 +94,7 @@ async fn main() {
         } else {
             accumlator = Duration::ZERO;
         }
-        render(&bird);
+        render(&bird, &mut fonts);
         next_frame().await;
     }
 }
@@ -102,12 +109,10 @@ fn game_logic(bird: &mut Bird, space: &mut bool) -> bool {
     bird.move_y()
 }
 
-const NOTO_SANS: &[u8] = include_bytes!("../assets/fonts/NotoSans-Regular.ttf");
-fn render(bird: &Bird) {
+
+fn render(bird: &Bird, fonts: &mut Fonts<'_>) {
     clear_background(SKYBLUE);
     draw_rectangle(X_POS, 300.0 - bird.y, BIRD_SIZE, BIRD_SIZE, ORANGE);
 
-    let mut fonts = Fonts::default();
-    fonts.load_font_from_bytes("Noto Sans", NOTO_SANS).unwrap();
     fonts.draw_text(&bird.score.to_string(), 10.0, 0.0, 12, BLACK);
 }
