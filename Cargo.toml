@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 macroquad = "0.4.15"
 macroquad-text = "0.2.0"
+rand = { version = "0.10.2", features = ["thread_rng"] } 

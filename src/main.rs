@@ -64,7 +64,7 @@ async fn main() {
     let mut fonts: Fonts<'_> = Fonts::default();
     fonts.load_font_from_bytes("Noto Sans", NOTO_SANS).unwrap();
 
-    let mut pipes: [Option<u32>; 10] = [None; 10];
+    let mut pipes: [Option<u32>; 15] = [None; 15];
     let mut pipe_offset: usize = 0;
 
     println!("Init done");
@@ -105,7 +105,7 @@ async fn main() {
 fn game_logic(
     bird: &mut Bird,
     space: &mut bool,
-    pipes: &mut [Option<u32>; 10],
+    pipes: &mut [Option<u32>; 15],
     pipe_offset: &mut usize,
 ) -> bool {
     *pipe_offset += 1;
@@ -121,23 +121,23 @@ fn game_logic(
     bird.move_y()
 }
 
-fn render(bird: &Bird, fonts: &mut Fonts<'_>, pipes: [Option<u32>; 10], pipe_offset: usize) {
+fn render(bird: &Bird, fonts: &mut Fonts<'_>, pipes: [Option<u32>; 15], pipe_offset: usize) {
     clear_background(SKYBLUE);
     draw_rectangle(X_POS, 300.0 - bird.y, BIRD_SIZE, BIRD_SIZE, ORANGE);
 
     for (i, pipe) in pipes.iter().enumerate() {
         if let Some(pipe_unwraped) = pipe {
+            // draw_rectangle(
+            //     1000.0 - ((pipe_offset + i * 100) as f32),
+            //     00.0 - *pipe_unwraped as f32,
+            //     25.0,
+            //     500.0,
+            //     GREEN,
+            // );
             draw_rectangle(
-                (pipe_offset + i * 100) as f32,
-                *pipe_unwraped as f32 + 500.0,
-                10.0,
-                500.0,
-                GREEN,
-            );
-            draw_rectangle(
-                (pipe_offset + i * 100) as f32,
-                *pipe_unwraped as f32 - 100.0,
-                10.0,
+                900.0 - ((pipe_offset + i * 100) as f32),
+                600.0 - *pipe_unwraped as f32,
+                25.0,
                 500.0,
                 GREEN,
             );
@@ -148,24 +148,17 @@ fn render(bird: &Bird, fonts: &mut Fonts<'_>, pipes: [Option<u32>; 10], pipe_off
 }
 
 #[allow(dead_code)]
-fn pipe(pipes: &mut [Option<u32>; 10], pipe_offset: &mut usize) {
-    let mut none: Vec<usize> = vec![];
-    for (i, pipe) in pipes.iter().enumerate() {
+fn pipe(pipes: &mut [Option<u32>; 15], pipe_offset: &mut usize) {
+    if *pipe_offset == 0 {
+        *pipes = [
+            None, pipes[0], pipes[1], pipes[2], pipes[3], pipes[4], pipes[5], pipes[6], pipes[7],
+            pipes[8], pipes[9], pipes[10], pipes[11], pipes[12], pipes[13],
+        ];
+    }
+
+    for (i, pipe) in pipes.clone().iter().enumerate() {
         if pipe.is_none() {
-            none.push(i);
-            break;
+            pipes[i] = Some(::rand::random_range(0..500));
         }
     }
-
-    if *pipe_offset == 0 {
-        *pipes = pop_pipe(*pipes);
-    }
-
-    pipes[9] = Some(rand::rand() / u32::MAX * 500);
-}
-
-fn pop_pipe(pipe: [Option<u32>; 10]) -> [Option<u32>; 10] {
-    [
-        pipe[1], pipe[2], pipe[3], pipe[4], pipe[5], pipe[6], pipe[7], pipe[8], pipe[9], None,
-    ]
 }
