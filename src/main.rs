@@ -3,10 +3,11 @@ use macroquad_text::Fonts;
 use std::time::{Duration, Instant};
 
 const FPS: f32 = 60.0;
-const JUMP_FORCE: f32 = 20.0;
-const GRAVITY: f32 = 2.0;
+const JUMP_FORCE: f32 = 10.0;
+const GRAVITY: f32 = 1.0;
 const X_POS: f32 = 30.0;
 const BIRD_SIZE: f32 = 20.0;
+const PIPE_DIST: usize = 200;
 
 struct Bird {
     score: u128,
@@ -67,6 +68,8 @@ async fn main() {
     let mut pipes: [Option<u32>; 15] = [None; 15];
     let mut pipe_offset: usize = 0;
 
+    pipe(&mut pipes, &mut pipe_offset);
+    render(&bird, &mut fonts, pipes, pipe_offset);
     println!("Init done");
 
     loop {
@@ -109,7 +112,7 @@ fn game_logic(
     pipe_offset: &mut usize,
 ) -> bool {
     *pipe_offset += 1;
-    *pipe_offset %= 100;
+    *pipe_offset %= PIPE_DIST;
 
     if *space {
         bird.jump();
@@ -117,7 +120,6 @@ fn game_logic(
     }
     bird.gravity();
     pipe(pipes, pipe_offset);
-    println!("{}, {}", bird.y, bird.speed_y);
     bird.move_y()
 }
 
@@ -127,15 +129,15 @@ fn render(bird: &Bird, fonts: &mut Fonts<'_>, pipes: [Option<u32>; 15], pipe_off
 
     for (i, pipe) in pipes.iter().enumerate() {
         if let Some(pipe_unwraped) = pipe {
-            // draw_rectangle(
-            //     1000.0 - ((pipe_offset + i * 100) as f32),
-            //     00.0 - *pipe_unwraped as f32,
-            //     25.0,
-            //     500.0,
-            //     GREEN,
-            // );
             draw_rectangle(
-                900.0 - ((pipe_offset + i * 100) as f32),
+                900.0 - ((pipe_offset + i * PIPE_DIST) as f32),
+                -100.0 - *pipe_unwraped as f32,
+                25.0,
+                500.0,
+                GREEN,
+            );
+            draw_rectangle(
+                900.0 - ((pipe_offset + i * PIPE_DIST) as f32),
                 600.0 - *pipe_unwraped as f32,
                 25.0,
                 500.0,
@@ -158,7 +160,7 @@ fn pipe(pipes: &mut [Option<u32>; 15], pipe_offset: &mut usize) {
 
     for (i, pipe) in pipes.clone().iter().enumerate() {
         if pipe.is_none() {
-            pipes[i] = Some(::rand::random_range(0..500));
+            pipes[i] = Some(::rand::random_range(0..300));
         }
     }
 }
